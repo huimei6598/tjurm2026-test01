@@ -7,6 +7,7 @@ int my_strlen(char *str) {
      */
 
     // IMPLEMENT YOUR CODE HERE
+    cout<<strlen(str)<<endl;
     return 0;
 }
 
