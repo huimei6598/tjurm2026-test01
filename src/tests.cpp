@@ -7,7 +7,11 @@ int my_strlen(char *str) {
      */
 
     // IMPLEMENT YOUR CODE HERE
-    return 0;
+    int len=0;
+    while(str[len]!='\0'){
+        len++;
+    }
+    return len;
 }
 
 
@@ -19,8 +23,12 @@ void my_strcat(char *str_1, char *str_2) {
      */
 
     // IMPLEMENT YOUR CODE HERE
+    int len1=my_strlen(str_1);
+    int len2=my_strlen(str_2);
+    for(int i=0;i<=len2;i++){
+        str_1[len1+i]=str_2[i];
+    }
 }
-
 
 // 练习3，实现库函数strstr
 char* my_strstr(char *s, char *p) {
@@ -31,6 +39,18 @@ char* my_strstr(char *s, char *p) {
      */
 
     // IMPLEMENT YOUR CODE HERE
+    if(! *p) return s;
+    for(int i=0;s[i]!='\0';i++){
+        int j=0;
+        while(s[i+j]==p[j]){
+            if(p[j+i]!='\0'){
+                j++;
+            }
+            else{
+                return s+i;
+            }
+        }
+    }
     return 0;
 }
 
@@ -97,6 +117,9 @@ void rgb2gray(float *in, float *out, int h, int w) {
 
     // IMPLEMENT YOUR CODE HERE
     // ...
+    for(int i=0;i<h*w;i++){
+        out[i]=0.2989*in[3*i]+0.5870*in[3*i+1]+0.1140*in[3*i+2];
+    }
 }
 
 // 练习5，实现图像处理算法 resize：缩小或放大图像
@@ -198,6 +221,31 @@ void resize(float *in, float *out, int h, int w, int c, float scale) {
 
     int new_h = h * scale, new_w = w * scale;
     // IMPLEMENT YOUR CODE HERE
+    for(int i=0;i<new_w;i++){
+        for(int j=0;j<new_h;j++){
+            float x0=i/scale;
+            float y0=j/scale;
+            int x1=static_cast<int>(x0);
+            int y1=static_cast<int>(y0);
+            int x2=x1+1;
+            int y2=y1+1;
+            if(y2>=h){
+                y2=h-1;
+            }
+            if(x2>=w){
+                x2=w-1;
+            }
+            float dx=x0-x1;
+            float dy=y0-y1;
+            for(int k=0;k<c;k++){
+                float P1=in[(y1*w+x1)*c+k];
+                float P2=in[(y1*w+x2)*c+k];
+                float P3=in[(y2*w+x1)*c+k];
+                float P4=in[(y2*w+x2)*c+k];
+                out[(j*new_w+i)*c+k]=P1*(1-dx)*(1-dy)+P2*dx*(1-dy)+P3*(1-dx)*dy+P4*dx*dy;
+            }
+        }
+    }
 
 }
 
@@ -221,4 +269,37 @@ void hist_eq(float *in, int h, int w) {
      */
 
     // IMPLEMENT YOUR CODE HERE
+    int N = h * w;
+    int hist[256] = {0};
+    for (int i = 0; i < h; i++) {
+        for (int j = 0; j < w; j++) {
+            int idx = i * w + j;
+            int val = static_cast<int>(in[idx] + 0.5f);
+            if (val < 0) val = 0;
+            if (val > 255) val = 255;
+            hist[val]++;
+        }
+    }
+    int cdf[256] = {0};
+    cdf[0] = hist[0];
+    for (int i = 1; i < 256; i++) {
+        cdf[i] = cdf[i - 1] + hist[i];
+    }
+    int cdf_min = 0;
+    for (int i = 0; i < 256; i++) {
+        if (cdf[i] != 0) {
+            cdf_min = cdf[i];
+            break;
+        }
+    }
+    for (int i = 0; i < h; i++) {
+        for (int j = 0; j < w; j++) {
+            int idx = i * w + j;
+            int val = static_cast<int>(in[idx] + 0.5f);
+            if (val < 0) val = 0;
+            if (val > 255) val = 255;
+            float eq = (float)(cdf[val] - cdf_min) / (N - cdf_min) * 255.0f;
+            in[idx] = eq;
+        }
+    }
 }
