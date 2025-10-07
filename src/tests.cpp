@@ -21,8 +21,6 @@ void my_strcat(char *str_1, char *str_2) {
      */
 
     // IMPLEMENT YOUR CODE HERE
-    char rsesult[3]={str_1,str_2,'\0'};
-    cout<<reslut<<endl;
 }
 
 
